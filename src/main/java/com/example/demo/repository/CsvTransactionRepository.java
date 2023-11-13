@@ -72,5 +72,26 @@ public class CsvTransactionRepository implements TransactionRepository {
         return transactions;
     }
 
+    @Override
+    public List<Transaction> findAll() {
+        List<Transaction> transactions = new ArrayList<>();
+        try (Reader reader = new InputStreamReader(csvResource.getInputStream(), StandardCharsets.UTF_8);
+             CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT.withFirstRecordAsHeader())) {
+
+            for (CSVRecord record : csvParser) {
+                Transaction transaction = new Transaction(
+                        Long.parseLong(record.get("TransactionID")),
+                        Long.parseLong(record.get("CustomerID")),
+                        Double.parseDouble(record.get("Amount")),
+                        LocalDate.parse(record.get("Date"), dateFormatter));
+                transactions.add(transaction);
+            }
+        } catch (IOException e) {
+            e.printStackTrace(); // Proper exception handling should be implemented
+        }
+        return transactions;
+    }
+
+
     // Additional methods to be implemented as needed.
 }
